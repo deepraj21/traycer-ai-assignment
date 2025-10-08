@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon, Linkedin, Twitter } from "lucide-react"
+import { Linkedin, Twitter } from "lucide-react"
 
 import {
     NavigationMenu,
@@ -17,39 +17,27 @@ import { Button } from "../ui/button"
 const components: { title: string; to: string; description: string }[] = [
     {
         title: "Spec-Driven Development",
-        to: "/docs/primitives/alert-dialog",
+        to: "/",
         description:
             "Traycer starts each task with a detailed, actionable plan so developers can iterate on ideas with AI rather than cryptic code diffs.",
     },
     {
-        title: "Hover Card",
-        to: "/docs/primitives/hover-card",
+        title: "Iteration to Perfection",
+        to: "/",
         description:
-            "For sighted users to preview content available behind a link.",
+            "Users can make precise updates to the plan, and Traycer ensures the plan remains coherent and grounded in the actual codebase.",
     },
     {
-        title: "Progress",
-        to: "/docs/primitives/progress",
+        title: "Parallel Agents",
+        to: "/",
         description:
-            "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+            "Multiple planning agents can be spun up simultaneously to get more done faster.",
     },
     {
-        title: "Scroll-area",
-        to: "/docs/primitives/scroll-area",
-        description: "Visually or semantically separates content.",
-    },
-    {
-        title: "Tabs",
-        to: "/docs/primitives/tabs",
-        description:
-            "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-    },
-    {
-        title: "Tooltip",
-        to: "/docs/primitives/tooltip",
-        description:
-            "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-    },
+        title: "One Click Hand-Off",
+        to: "/",
+        description: "Once the plan is finalized, code generation begins instantly via popular AI agents like Cursor, Claude Code, and Windsurf.",
+    }
 ]
 
 export function Navbar() {
