@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = useCallback(async (email: string, password: string) => {
     const created = await signupRequest(email, password);
-    // do not set user on signup; require explicit signin per requirement
+    console.log(created)
   }, []);
 
   const signin = useCallback(async (email: string, password: string) => {
