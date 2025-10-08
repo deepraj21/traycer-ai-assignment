@@ -26,7 +26,7 @@ const Hero = () => {
                     <div className="flex gap-4">
                         <Button className="rounded-xs p-4" size="lg">Download traycer</Button>
                         <Dialog>
-                            <DialogTrigger><Button className="rounded-xs p-4" variant="outline">Continue Web version</Button></DialogTrigger>
+                            <DialogTrigger><Button className="rounded-xs p-4" size="lg" variant="outline">Continue Web version</Button></DialogTrigger>
                             <DialogContent className="max-w-[200px]">
                                 <Authentication />
                             </DialogContent>
