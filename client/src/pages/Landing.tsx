@@ -2,7 +2,6 @@ import Hero from "@/components/hero/Hero"
 import { Navbar } from "@/components/layout/Navbar"
 import GradientBlinds from "@/components/ui/GradientBlinds"
 
-
 const Landing = () => {
     return (
         <>
