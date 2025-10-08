@@ -52,8 +52,8 @@ export function Navbar() {
                 <span className="text-3xl pr-3">traycer</span>
                 <div className="md:flex hidden space-x-2">
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>Features</NavigationMenuTrigger>
-                        <NavigationMenuContent>
+                        <NavigationMenuTrigger className="rounded-xs">Features</NavigationMenuTrigger>
+                        <NavigationMenuContent className="rounded-xs">
                             <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                                 {components.map((component) => (
                                     <ListItem
@@ -73,9 +73,9 @@ export function Navbar() {
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+                        <NavigationMenuTrigger className="rounded-xs">Resources</NavigationMenuTrigger>
                         <NavigationMenuContent>
-                            <ul className="grid w-[200px] gap-4">
+                            <ul className="grid w-[150px] gap-4">
                                 <li>
                                     <NavigationMenuLink asChild>
                                         <Link to="/">Components</Link>
@@ -94,13 +94,13 @@ export function Navbar() {
                                 <li>
                                     <NavigationMenuLink asChild>
                                         <Link to="/" className="flex-row items-center gap-2">
-                                            <div className="w-8 h-8 border flex items-center justify-center rounded-sm"><Twitter /></div>
+                                            <div className="w-8 h-8 border flex items-center justify-center rounded-xs"><Twitter /></div>
                                             Twitter
                                         </Link>
                                     </NavigationMenuLink>
                                     <NavigationMenuLink asChild>
                                         <Link to="/" className="flex-row items-center gap-2">
-                                            <div className="w-8 h-8 border flex items-center justify-center rounded-sm"><Linkedin /></div>
+                                            <div className="w-8 h-8 border flex items-center justify-center rounded-xs"><Linkedin /></div>
                                             Linkedin
                                         </Link>
                                     </NavigationMenuLink>
@@ -113,7 +113,7 @@ export function Navbar() {
             <div className="flex items-center gap-3">
                 <AnimatedThemeToggler />
                 <Dialog>
-                    <DialogTrigger><Button>Login</Button></DialogTrigger>
+                    <DialogTrigger><Button className="rounded-xs">Signup</Button></DialogTrigger>
                     <DialogContent className="max-w-[200px]">
                         <Authentication />
                     </DialogContent>

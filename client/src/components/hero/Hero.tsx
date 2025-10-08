@@ -24,9 +24,9 @@ const Hero = () => {
                         <span className="font-semibold">traycer</span> is your 10x AI Engineer who can independently build<br /> software solutions for you.
                     </div>
                     <div className="flex gap-4">
-                        <Button className="h-10" size="lg">Download traycer</Button>
+                        <Button className="rounded-xs p-4" size="lg">Download traycer</Button>
                         <Dialog>
-                            <DialogTrigger><Button className="h-10" variant="outline">Continue Web version</Button></DialogTrigger>
+                            <DialogTrigger><Button className="rounded-xs p-4" variant="outline">Continue Web version</Button></DialogTrigger>
                             <DialogContent className="max-w-[200px]">
                                 <Authentication />
                             </DialogContent>
