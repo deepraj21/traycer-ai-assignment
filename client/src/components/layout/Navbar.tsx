@@ -1,7 +1,11 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
 import { Linkedin, Twitter } from "lucide-react"
-
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -13,6 +17,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { AnimatedThemeToggler } from "../ui/animated-theme-toggler"
 import { Button } from "../ui/button"
+import Authentication from "../auth/Authentication"
 
 const components: { title: string; to: string; description: string }[] = [
     {
@@ -76,9 +81,6 @@ export function Navbar() {
                                         <Link to="/">Components</Link>
                                     </NavigationMenuLink>
                                     <NavigationMenuLink asChild>
-                                        <Link to="/">Documentation</Link>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink asChild>
                                         <Link to="/">Blocks</Link>
                                     </NavigationMenuLink>
                                 </li>
@@ -110,7 +112,12 @@ export function Navbar() {
             </NavigationMenuList>
             <div className="flex items-center gap-3">
                 <AnimatedThemeToggler />
-                <Button>Login</Button>
+                <Dialog>
+                    <DialogTrigger><Button>Login</Button></DialogTrigger>
+                    <DialogContent className="max-w-[200px]">
+                        <Authentication />
+                    </DialogContent>
+                </Dialog>
             </div>
         </NavigationMenu>
     )
