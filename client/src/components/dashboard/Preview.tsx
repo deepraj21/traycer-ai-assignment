@@ -1,4 +1,4 @@
-import { ArrowUpRightIcon, FolderClosedIcon } from "lucide-react"
+import { ArrowUpRightIcon, FolderClosedIcon, Lock } from "lucide-react"
 import {
     Menubar,
     MenubarContent,
@@ -47,12 +47,16 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { Status, StatusIndicator, StatusLabel } from "../kibo-ui/status"
 
 interface NoProjectProps {
-    onCreateProject: () => void;
+    onCreateProject: (projectName: string, techStack: string) => void;
 }
 
 function NoProject({ onCreateProject }: NoProjectProps) {
+    const [projectName, setProjectName] = useState<string>("")
+    const [techStack, setTechStack] = useState<string>("kubernetes")
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
     return (
         <Empty>
             <EmptyHeader>
@@ -67,7 +71,13 @@ function NoProject({ onCreateProject }: NoProjectProps) {
             </EmptyHeader>
             <EmptyContent>
                 <div className="flex gap-2">
-                    <Dialog>
+                    <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                        setIsDialogOpen(open)
+                        if (!open) {
+                            setProjectName("")
+                            setTechStack("kubernetes")
+                        }
+                    }}>
                         <DialogTrigger><Button>Create Project</Button></DialogTrigger>
                         <DialogContent>
                             <DialogHeader >
@@ -77,14 +87,20 @@ function NoProject({ onCreateProject }: NoProjectProps) {
                                 <FieldSet>
                                     <FieldGroup>
                                         <Field>
-                                            <FieldLabel htmlFor="username">Project Name</FieldLabel>
-                                            <Input id="username" type="text" placeholder="Project-architech" />
+                                            <FieldLabel htmlFor="projectName">Project Name</FieldLabel>
+                                            <Input
+                                                id="projectName"
+                                                type="text"
+                                                placeholder="Project-architech"
+                                                value={projectName}
+                                                onChange={(e) => setProjectName(e.target.value)}
+                                            />
                                         </Field>
                                         <FieldSet>
                                             <FieldLabel htmlFor="compute-environment-p8w">
                                                 Project base tech-stack
                                             </FieldLabel>
-                                            <RadioGroup defaultValue="kubernetes" className="flex">
+                                            <RadioGroup value={techStack} onValueChange={setTechStack} className="flex">
                                                 <FieldLabel htmlFor="kubernetes-r2h">
                                                     <Field orientation="horizontal">
                                                         <FieldContent>
@@ -104,13 +120,24 @@ function NoProject({ onCreateProject }: NoProjectProps) {
                                                                 Basic react app
                                                             </FieldDescription>
                                                         </FieldContent>
-                                                        <RadioGroupItem value="vm" id="vm-z4k" />
+                                                        <div className="flex flex-col justify-between h-full items-center">
+                                                            <RadioGroupItem value="vm" id="vm-z4k" disabled />
+                                                            <Lock size="16" className="text-muted" />
+                                                        </div>
                                                     </Field>
                                                 </FieldLabel>
                                             </RadioGroup>
                                         </FieldSet>
                                     </FieldGroup>
-                                    <Button onClick={onCreateProject}>Create Project</Button>
+                                    <Button
+                                        onClick={() => {
+                                            onCreateProject(projectName, techStack)
+                                            setIsDialogOpen(false)
+                                        }}
+                                        disabled={!projectName.trim()}
+                                    >
+                                        Create Project
+                                    </Button>
                                 </FieldSet>
                             </DialogDescription>
                         </DialogContent>
@@ -138,99 +165,10 @@ interface ProjectProps {
 
 interface ProjectData {
     id: string;
+    name: string;
+    techStack: string;
     createdAt: Date;
 }
-
-// Sample files for Sandpack
-// const sampleFiles = {
-//     "/App.js": {
-//         code: `import React, { useState } from 'react';
-// import './App.css';
-
-// export default function App() {
-//   const [count, setCount] = useState(0);
-
-//   return (
-//     <div className="app">
-//       <h1>Welcome to Traycer</h1>
-//       <p>This is a sample React app in Sandpack!</p>
-//       <div className="counter">
-//         <button onClick={() => setCount(count - 1)}>-</button>
-//         <span>{count}</span>
-//         <button onClick={() => setCount(count + 1)}>+</button>
-//       </div>
-//       <p>Edit the files to see changes in real-time!</p>
-//     </div>
-//   );
-// }`,
-//         active: true,
-//     },
-//     "/App.css": {
-//         code: `.app {
-//   text-align: center;
-//   padding: 20px;
-//   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-// }
-
-// h1 {
-//   color: #333;
-//   margin-bottom: 20px;
-// }
-
-// .counter {
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   gap: 15px;
-//   margin: 20px 0;
-// }
-
-// .counter button {
-//   padding: 10px 20px;
-//   font-size: 18px;
-//   border: 2px solid #007acc;
-//   background: white;
-//   color: #007acc;
-//   border-radius: 5px;
-//   cursor: pointer;
-//   transition: all 0.2s;
-// }
-
-// .counter button:hover {
-//   background: #007acc;
-//   color: white;
-// }
-
-// .counter span {
-//   font-size: 24px;
-//   font-weight: bold;
-//   min-width: 50px;
-// }`,
-//     },
-//     "/index.js": {
-//         code: `import React from 'react';
-// import { createRoot } from 'react-dom/client';
-// import App from './App';
-
-// const container = document.getElementById('root');
-// const root = createRoot(container);
-
-// root.render(<App />);`,
-//     },
-//     "/public/index.html": {
-//         code: `<!DOCTYPE html>
-// <html lang="en">
-//   <head>
-//     <meta charset="UTF-8" />
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-//     <title>Traycer Sandpack</title>
-//   </head>
-//   <body>
-//     <div id="root"></div>
-//   </body>
-// </html>`,
-//     },
-// };
 
 function Project({ projectData }: ProjectProps) {
     const { user, signout } = useAuth()
@@ -251,10 +189,16 @@ function Project({ projectData }: ProjectProps) {
                     <MenubarMenu>
                         <MenubarTrigger>Project</MenubarTrigger>
                         <MenubarContent>
-                            <MenubarItem>{projectData.id}</MenubarItem>
+                            <MenubarItem>{projectData.name}</MenubarItem>
+                            <MenubarItem>Tech Stack: {projectData.techStack === 'kubernetes' ? 'Node.js' : 'React.js'}</MenubarItem>
                             <MenubarSeparator />
-                            <MenubarItem>Save</MenubarItem>
-                            <MenubarItem>Reload</MenubarItem>
+                            <MenubarItem>
+                                Save
+                                <Status status="degraded" className="rounded-full p-1 pl-2 pr-2">
+                                    <StatusIndicator />
+                                    <StatusLabel>Changes</StatusLabel>
+                                </Status>
+                            </MenubarItem>
                             <MenubarSeparator />
                             <MenubarItem>New Project</MenubarItem>
                         </MenubarContent>
@@ -319,10 +263,12 @@ export function Preview() {
         }
     }, [projectCreated, projectData])
 
-    const handleCreateProject = () => {
-        // Create a new project with sample data
+    const handleCreateProject = (projectName: string, techStack: string) => {
+        // Create a new project with user input data
         const newProject: ProjectData = {
             id: `project_${Date.now()}`,
+            name: projectName,
+            techStack: techStack,
             createdAt: new Date()
         }
 
