@@ -48,6 +48,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { Status, StatusIndicator, StatusLabel } from "../kibo-ui/status"
+import {
+    type ProjectData,
+    saveProject,
+    loadCurrentProject,
+    updateProjectFiles,
+    createInitialFiles,
+    clearAllProjects
+} from "@/utils/project-storage"
+import { useSandpackFiles } from "@/hooks/use-sandpack-files"
 
 interface NoProjectProps {
     onCreateProject: (projectName: string, techStack: string) => void;
@@ -55,7 +64,7 @@ interface NoProjectProps {
 
 function NoProject({ onCreateProject }: NoProjectProps) {
     const [projectName, setProjectName] = useState<string>("")
-    const [techStack, setTechStack] = useState<string>("kubernetes")
+    const [techStack, setTechStack] = useState<string>("react")
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
     return (
         <Empty>
@@ -75,7 +84,7 @@ function NoProject({ onCreateProject }: NoProjectProps) {
                         setIsDialogOpen(open)
                         if (!open) {
                             setProjectName("")
-                            setTechStack("kubernetes")
+                            setTechStack("node")
                         }
                     }}>
                         <DialogTrigger><Button>Create Project</Button></DialogTrigger>
@@ -101,18 +110,7 @@ function NoProject({ onCreateProject }: NoProjectProps) {
                                                 Project base tech-stack
                                             </FieldLabel>
                                             <RadioGroup value={techStack} onValueChange={setTechStack} className="flex">
-                                                <FieldLabel htmlFor="kubernetes-r2h">
-                                                    <Field orientation="horizontal">
-                                                        <FieldContent>
-                                                            <FieldTitle className="text-lg">NodeJs</FieldTitle>
-                                                            <FieldDescription className="text-xs">
-                                                                Basic http server
-                                                            </FieldDescription>
-                                                        </FieldContent>
-                                                        <RadioGroupItem value="kubernetes" id="kubernetes-r2h" />
-                                                    </Field>
-                                                </FieldLabel>
-                                                <FieldLabel htmlFor="vm-z4k">
+                                                <FieldLabel>
                                                     <Field orientation="horizontal">
                                                         <FieldContent>
                                                             <FieldTitle className="text-lg">ReactJs</FieldTitle>
@@ -121,8 +119,21 @@ function NoProject({ onCreateProject }: NoProjectProps) {
                                                             </FieldDescription>
                                                         </FieldContent>
                                                         <div className="flex flex-col justify-between h-full items-center">
-                                                            <RadioGroupItem value="vm" id="vm-z4k" disabled />
-                                                            <Lock size="16" className="text-muted" />
+                                                            <RadioGroupItem value="react" id="react" />
+                                                        </div>
+                                                    </Field>
+                                                </FieldLabel>
+                                                <FieldLabel>
+                                                <Field orientation="horizontal">
+                                                        <FieldContent>
+                                                            <FieldTitle className="text-lg">NodeJs</FieldTitle>
+                                                            <FieldDescription className="text-xs">
+                                                                Basic http server
+                                                            </FieldDescription>
+                                                        </FieldContent>
+                                                        <div className="flex flex-col justify-between h-full items-center">
+                                                           <RadioGroupItem value="node" id="node" disabled /> 
+                                                           <Lock size="16" className="text-muted" />
                                                         </div>
                                                     </Field>
                                                 </FieldLabel>
@@ -161,18 +172,32 @@ function NoProject({ onCreateProject }: NoProjectProps) {
 
 interface ProjectProps {
     projectData: ProjectData;
+    onSave: () => void;
+    onNewProject: () => void;
+    hasUnsavedChanges: boolean;
 }
 
-interface ProjectData {
-    id: string;
-    name: string;
-    techStack: string;
-    createdAt: Date;
+function FileChangeTracker({ onFilesChange }: { onFilesChange: (files: Record<string, string>) => void }) {
+    useSandpackFiles({ onFilesChange });
+    return null;
 }
 
-function Project({ projectData }: ProjectProps) {
+function Project({ projectData, onSave, onNewProject, hasUnsavedChanges }: ProjectProps) {
     const { user, signout } = useAuth()
     const [activeTab, setActiveTab] = useState("code")
+    const [files, setFiles] = useState(projectData.files || {})
+
+    const handleFilesChange = (newFiles: Record<string, string>) => {
+        setFiles(newFiles)
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('sandpack-file-change', {
+                detail: {
+                    projectId: projectData.id,
+                    files: newFiles
+                }
+            }))
+        }
+    }
 
     return (
         <div className="h-screen flex flex-col">
@@ -187,20 +212,27 @@ function Project({ projectData }: ProjectProps) {
                         </MenubarContent>
                     </MenubarMenu>
                     <MenubarMenu>
-                        <MenubarTrigger>Project</MenubarTrigger>
+                        <MenubarTrigger className="relative">
+                            Project
+                            {hasUnsavedChanges && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 animate-pulse bg-amber-500 rounded-full"></div>
+                            )}
+                        </MenubarTrigger>
                         <MenubarContent>
                             <MenubarItem>{projectData.name}</MenubarItem>
-                            <MenubarItem>Tech Stack: {projectData.techStack === 'kubernetes' ? 'Node.js' : 'React.js'}</MenubarItem>
+                            <MenubarItem>Tech Stack: {projectData.techStack === 'node' ? 'Node.js' : 'React.js'}</MenubarItem>
                             <MenubarSeparator />
-                            <MenubarItem>
+                            <MenubarItem onClick={onSave}>
                                 Save
-                                <Status status="degraded" className="rounded-full p-1 pl-2 pr-2">
-                                    <StatusIndicator />
-                                    <StatusLabel>Changes</StatusLabel>
-                                </Status>
+                                {hasUnsavedChanges && (
+                                    <Status status="degraded" className="rounded-full p-1 pl-2 pr-2 ml-2">
+                                        <StatusIndicator />
+                                        <StatusLabel>Changes</StatusLabel>
+                                    </Status>
+                                )}
                             </MenubarItem>
                             <MenubarSeparator />
-                            <MenubarItem>New Project</MenubarItem>
+                            <MenubarItem onClick={onNewProject}>New Project</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                 </Menubar>
@@ -215,7 +247,19 @@ function Project({ projectData }: ProjectProps) {
             <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
                     <TabsContent value="code" className="h-full m-0 data-[state=inactive]:hidden">
-                        <SandpackProvider theme={sandpackDark} template="node">
+                        <SandpackProvider
+                            theme={sandpackDark}
+                            customSetup={
+                                {
+                                    dependencies: {
+                                        "express": "^5.1.0"
+                                    }
+                                }
+                            }
+                            template={projectData.techStack === 'node' ? 'node' : 'react'}
+                            files={files}
+                        >
+                            <FileChangeTracker onFilesChange={handleFilesChange} />
                             <SandpackLayout className="h-full" style={{ borderRadius: '0', border: '0', }}>
                                 <SandpackFileExplorer style={{ height: 'calc(100vh - 94px)', width: '30vw', borderRadius: '0', borderBottom: '0' }} />
                                 <SandpackCodeEditor style={{ height: 'calc(100vh - 94px)', width: '40vw', borderRadius: '0', borderBottom: '0' }} showTabs closableTabs initMode="lazy" showLineNumbers />
@@ -225,16 +269,19 @@ function Project({ projectData }: ProjectProps) {
 
                     <TabsContent value="preview" className="h-full m-0 data-[state=inactive]:hidden">
                         <SandpackProvider
-                            // files={sampleFiles}
+                            files={files}
+
                             theme={sandpackDark}
-                            template="node"
+                            template={projectData.techStack === 'node' ? 'node' : 'react'}
                         >
+                            <FileChangeTracker onFilesChange={handleFilesChange} />
                             <SandpackLayout className="h-full" style={{ borderRadius: '0', border: '0', }}>
                                 <SandpackPreview
                                     style={{ height: 'calc(100vh - 94px)' }}
-                                    showNavigator={false}
+                                    showNavigator
                                     showRefreshButton={true}
                                     showOpenInCodeSandbox={false}
+                                    showRestartButton
                                 />
                                 <SandpackConsole
                                     style={{ height: 'calc(100vh - 94px)' }}
@@ -254,32 +301,90 @@ function Project({ projectData }: ProjectProps) {
 export function Preview() {
     const [projectCreated, setProjectCreated] = useState<boolean>(false)
     const [projectData, setProjectData] = useState<ProjectData | null>(null)
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false)
+    const [currentFiles, setCurrentFiles] = useState<Record<string, string>>({})
 
-    // useEffect to handle project creation and display
+    useEffect(() => {
+        const savedProject = loadCurrentProject()
+        if (savedProject) {
+            setProjectData(savedProject)
+            setCurrentFiles(savedProject.files || {})
+            setProjectCreated(true)
+            setHasUnsavedChanges(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        const handleFileChange = (event: CustomEvent) => {
+            if (projectData && event.detail.projectId === projectData.id) {
+                setCurrentFiles(event.detail.files)
+                setHasUnsavedChanges(true)
+            }
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('sandpack-file-change', handleFileChange as EventListener)
+            return () => {
+                window.removeEventListener('sandpack-file-change', handleFileChange as EventListener)
+            }
+        }
+    }, [projectData])
+
     useEffect(() => {
         if (projectCreated && projectData) {
             console.log('Project created successfully:', projectData)
-            // You can add additional logic here like API calls, notifications, etc.
+            saveProject(projectData)
         }
     }, [projectCreated, projectData])
 
     const handleCreateProject = (projectName: string, techStack: string) => {
-        // Create a new project with user input data
+        const initialFiles = createInitialFiles(techStack)
+
         const newProject: ProjectData = {
             id: `project_${Date.now()}`,
             name: projectName,
             techStack: techStack,
-            createdAt: new Date()
+            createdAt: new Date(),
+            lastModified: new Date(),
+            files: initialFiles
         }
 
         setProjectData(newProject)
+        setCurrentFiles(initialFiles)
         setProjectCreated(true)
+        setHasUnsavedChanges(false)
     }
+
+    const handleSave = () => {
+        if (projectData) {
+            const updatedProject = updateProjectFiles(projectData, currentFiles)
+            setProjectData(updatedProject)
+
+            saveProject(updatedProject)
+
+            setHasUnsavedChanges(false)
+        }
+    }
+
+    const handleNewProject = () => {
+        clearAllProjects()
+
+        setProjectData(null)
+        setCurrentFiles({})
+        setProjectCreated(false)
+        setHasUnsavedChanges(false)
+    }
+
 
     return (
         <div className="h-screen">
             {projectCreated && projectData ? (
-                <Project projectData={projectData} />
+                <Project
+                    projectData={projectData}
+                    onSave={handleSave}
+                    onNewProject={handleNewProject}
+                    hasUnsavedChanges={hasUnsavedChanges}
+                />
             ) : (
                 <div className="h-full flex items-center justify-center">
                     <NoProject onCreateProject={handleCreateProject} />
