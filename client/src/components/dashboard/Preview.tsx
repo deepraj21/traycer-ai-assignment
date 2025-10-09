@@ -18,7 +18,16 @@ import {
 } from "@/components/ui/empty"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import {
+    SandpackProvider,
+    SandpackLayout,
+    SandpackFileExplorer,
+    SandpackCodeEditor,
+    SandpackPreview,
+    SandpackConsole,
+} from "@codesandbox/sandpack-react"
+import { sandpackDark } from "@codesandbox/sandpack-themes"
 
 interface NoProjectProps {
     onCreateProject: () => void;
@@ -66,11 +75,104 @@ interface ProjectData {
     createdAt: Date;
 }
 
+// Sample files for Sandpack
+// const sampleFiles = {
+//     "/App.js": {
+//         code: `import React, { useState } from 'react';
+// import './App.css';
+
+// export default function App() {
+//   const [count, setCount] = useState(0);
+
+//   return (
+//     <div className="app">
+//       <h1>Welcome to Traycer</h1>
+//       <p>This is a sample React app in Sandpack!</p>
+//       <div className="counter">
+//         <button onClick={() => setCount(count - 1)}>-</button>
+//         <span>{count}</span>
+//         <button onClick={() => setCount(count + 1)}>+</button>
+//       </div>
+//       <p>Edit the files to see changes in real-time!</p>
+//     </div>
+//   );
+// }`,
+//         active: true,
+//     },
+//     "/App.css": {
+//         code: `.app {
+//   text-align: center;
+//   padding: 20px;
+//   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+// }
+
+// h1 {
+//   color: #333;
+//   margin-bottom: 20px;
+// }
+
+// .counter {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 15px;
+//   margin: 20px 0;
+// }
+
+// .counter button {
+//   padding: 10px 20px;
+//   font-size: 18px;
+//   border: 2px solid #007acc;
+//   background: white;
+//   color: #007acc;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   transition: all 0.2s;
+// }
+
+// .counter button:hover {
+//   background: #007acc;
+//   color: white;
+// }
+
+// .counter span {
+//   font-size: 24px;
+//   font-weight: bold;
+//   min-width: 50px;
+// }`,
+//     },
+//     "/index.js": {
+//         code: `import React from 'react';
+// import { createRoot } from 'react-dom/client';
+// import App from './App';
+
+// const container = document.getElementById('root');
+// const root = createRoot(container);
+
+// root.render(<App />);`,
+//     },
+//     "/public/index.html": {
+//         code: `<!DOCTYPE html>
+// <html lang="en">
+//   <head>
+//     <meta charset="UTF-8" />
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+//     <title>Traycer Sandpack</title>
+//   </head>
+//   <body>
+//     <div id="root"></div>
+//   </body>
+// </html>`,
+//     },
+// };
+
 function Project({ projectData }: ProjectProps) {
     const { user, signout } = useAuth()
+    const [activeTab, setActiveTab] = useState("code")
+
     return (
-        <div>
-            <div className="p-2 border-b flex gap-2">
+        <div className="h-screen flex flex-col">
+            <div className="p-3 border-b flex gap-2 items-center bg-background">
                 <Menubar className="w-fit">
                     <MenubarMenu>
                         <MenubarTrigger>traycer</MenubarTrigger>
@@ -87,14 +189,52 @@ function Project({ projectData }: ProjectProps) {
                             <MenubarSeparator />
                             <MenubarItem>Save</MenubarItem>
                             <MenubarItem>Reload</MenubarItem>
+                            <MenubarSeparator />
+                            <MenubarItem>New Project</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                 </Menubar>
-                <Tabs defaultValue="account" className="w-[400px]">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
                     <TabsList>
-                        <TabsTrigger value="account">Code</TabsTrigger>
-                        <TabsTrigger value="password">Preview</TabsTrigger>
+                        <TabsTrigger value="code">Code</TabsTrigger>
+                        <TabsTrigger value="preview">Preview</TabsTrigger>
                     </TabsList>
+                </Tabs>
+            </div>
+
+            <div className="flex-1 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+                    <TabsContent value="code" className="h-full m-0 data-[state=inactive]:hidden">
+                        <SandpackProvider theme={sandpackDark} template="node">
+                            <SandpackLayout className="h-full" style={{ borderRadius: '0', border: '0', }}>
+                                <SandpackFileExplorer style={{ height: 'calc(100vh - 94px)', width: '30vw', borderRadius: '0', borderBottom: '0' }} />
+                                <SandpackCodeEditor style={{ height: 'calc(100vh - 94px)', width: '40vw', borderRadius: '0', borderBottom: '0' }} showTabs closableTabs initMode="lazy" showLineNumbers />
+                            </SandpackLayout>
+                        </SandpackProvider>
+                    </TabsContent>
+
+                    <TabsContent value="preview" className="h-full m-0 data-[state=inactive]:hidden">
+                        <SandpackProvider
+                            // files={sampleFiles}
+                            theme={sandpackDark}
+                            template="node"
+                        >
+                            <SandpackLayout className="h-full" style={{ borderRadius: '0', border: '0', }}>
+                                <SandpackPreview
+                                    style={{ height: 'calc(100vh - 94px)' }}
+                                    showNavigator={false}
+                                    showRefreshButton={true}
+                                    showOpenInCodeSandbox={false}
+                                />
+                                <SandpackConsole
+                                    style={{ height: 'calc(100vh - 94px)' }}
+                                    showHeader={true}
+                                    showSyntaxError={true}
+                                    maxMessageCount={10}
+                                />
+                            </SandpackLayout>
+                        </SandpackProvider>
+                    </TabsContent>
                 </Tabs>
             </div>
         </div>
@@ -125,11 +265,11 @@ export function Preview() {
     }
 
     return (
-        <div className="">
+        <div className="h-screen">
             {projectCreated && projectData ? (
                 <Project projectData={projectData} />
             ) : (
-                <div className="min-h-screen flex items-center justify-center">
+                <div className="h-full flex items-center justify-center">
                     <NoProject onCreateProject={handleCreateProject} />
                 </div>
             )}
