@@ -47,7 +47,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowUp, Book, Folder, Globe, Grid, LucidePlusCircle, Paperclip, Plus, X } from "lucide-react"
+import { ArrowUp, Book, Brain, CloudUpload, Folder, Globe, Paperclip, Plus, Settings2, X } from "lucide-react"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Button } from "../ui/button"
+import { Textarea } from "../ui/textarea"
+import gemini_logo from "@/assets/gemini.png"
+import groq_logo from "@/assets/groq.png"
 
 const SAMPLE_DATA = {
   mentionable: [
@@ -122,19 +134,15 @@ const SAMPLE_DATA = {
   ],
   models: [
     {
-      name: "Auto",
-      icon: Folder,
+      name: "gemini-2.5-flash",
+      icon: () => <img src={gemini_logo} alt="Gemini" className="w-5 h-5 rounded" />,
+      badge: "free",
     },
     {
-      name: "Claude Sonnet 4",
-      icon: Folder,
-      badge: "Beta",
-    },
-    {
-      name: "GPT-5",
-      icon: Folder,
-      badge: "Beta",
-    },
+      name: "groq",
+      icon: () => <img src={groq_logo} alt="Groq" className="w-5 h-5 rounded" />,
+      badge: "free",
+    }
   ],
 }
 
@@ -218,7 +226,7 @@ export function Chat() {
                       </InputGroupButton>
                     </PopoverTrigger>
                   </TooltipTrigger>
-                  <TooltipContent>Mention a person, page, or date</TooltipContent>
+                  <TooltipContent>Mention any file from project</TooltipContent>
                 </Tooltip>
                 <PopoverContent className="p-0 [--radius:1.2rem]" align="start">
                   <Command>
@@ -312,9 +320,9 @@ export function Chat() {
                   align="start"
                   className="[--radius:1.2rem]"
                 >
-                  <DropdownMenuGroup className="w-72">
+                  <DropdownMenuGroup className="w-62">
                     <DropdownMenuLabel className="text-muted-foreground text-xs">
-                      Get answers about your workspace
+                      Select a model from our list
                     </DropdownMenuLabel>
                     {SAMPLE_DATA.models.map((model) => (
                       <DropdownMenuCheckboxItem
@@ -345,7 +353,7 @@ export function Chat() {
               <DropdownMenu open={scopeMenuOpen} onOpenChange={setScopeMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <InputGroupButton size="sm" className="rounded-full">
-                    <Globe /> All Sources
+                    <Settings2 /> Tools
                   </InputGroupButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -370,66 +378,48 @@ export function Chat() {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      asChild
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <label htmlFor="apps">
-                        <Grid /> Apps and Integrations
-                        <Switch id="apps" className="ml-auto" defaultChecked />
-                      </label>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <LucidePlusCircle /> All Sources I can access
-                    </DropdownMenuItem>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
-                        <Avatar className="size-4">
-                          <AvatarImage src="https://github.com/shadcn.png" />
-                          <AvatarFallback>CN</AvatarFallback>
-                        </Avatar>
-                        shadcn
+                        <Brain />
+                        Knowledge Base
                       </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-72 p-0 [--radius:1.2rem]">
+                      <DropdownMenuSubContent className="w-72 p-0 -mt-20 ml-2 [--radius:1.2rem]">
                         <Command>
                           <CommandInput
                             placeholder="Find or use knowledge in..."
                             autoFocus
                           />
-                          <CommandList>
-                            <CommandEmpty>No knowledge found</CommandEmpty>
-                            <CommandGroup>
-                              {SAMPLE_DATA.mentionable
-                                .filter((item) => item.type === "user")
-                                .map((user) => (
-                                  <CommandItem
-                                    key={user.title}
-                                    value={user.title}
-                                    onSelect={() => {
-                                      // Handle user selection here
-                                      console.log("Selected user:", user.title)
-                                    }}
-                                  >
-                                    <Avatar className="size-4">
-                                      <AvatarImage src={user.image} />
-                                      <AvatarFallback>
-                                        {user.title[0]}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    {user.title}{" "}
-                                    <span className="text-muted-foreground">
-                                      - {user.workspace}
-                                    </span>
-                                  </CommandItem>
-                                ))}
-                            </CommandGroup>
-                          </CommandList>
+                          <Empty className="md:p-4">
+                            <EmptyHeader>
+                              <EmptyMedia variant="icon">
+                                <CloudUpload />
+                              </EmptyMedia>
+                              <EmptyTitle>No Knowledge Base</EmptyTitle>
+                              <EmptyDescription>
+                                Upload files to index them and use them
+                              </EmptyDescription>
+                            </EmptyHeader>
+                            <EmptyContent>
+                              <Button variant="outline" size="sm">
+                                Upload Files
+                              </Button>
+                            </EmptyContent>
+                          </Empty>
                         </Command>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
-                    <DropdownMenuItem>
-                      <Book /> Help Center
-                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <Book />
+                        Add Instructions
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-72 p-2 -mt-16 ml-2 [--radius:1.2rem]">
+                        <span className="ml-2">Add your instrctions</span>
+                        <div className="mt-2">
+                          <Textarea />
+                        </div>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>

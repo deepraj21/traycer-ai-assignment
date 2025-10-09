@@ -28,6 +28,25 @@ import {
     SandpackConsole,
 } from "@codesandbox/sandpack-react"
 import { sandpackDark } from "@codesandbox/sandpack-themes"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    Field,
+    FieldContent,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+    FieldSet,
+    FieldTitle,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 
 interface NoProjectProps {
     onCreateProject: () => void;
@@ -48,7 +67,54 @@ function NoProject({ onCreateProject }: NoProjectProps) {
             </EmptyHeader>
             <EmptyContent>
                 <div className="flex gap-2">
-                    <Button onClick={onCreateProject}>Create Project</Button>
+                    <Dialog>
+                        <DialogTrigger><Button>Create Project</Button></DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader >
+                                <DialogTitle>Create Project</DialogTitle>
+                            </DialogHeader>
+                            <DialogDescription>
+                                <FieldSet>
+                                    <FieldGroup>
+                                        <Field>
+                                            <FieldLabel htmlFor="username">Project Name</FieldLabel>
+                                            <Input id="username" type="text" placeholder="Project-architech" />
+                                        </Field>
+                                        <FieldSet>
+                                            <FieldLabel htmlFor="compute-environment-p8w">
+                                                Project base tech-stack
+                                            </FieldLabel>
+                                            <RadioGroup defaultValue="kubernetes" className="flex">
+                                                <FieldLabel htmlFor="kubernetes-r2h">
+                                                    <Field orientation="horizontal">
+                                                        <FieldContent>
+                                                            <FieldTitle className="text-lg">NodeJs</FieldTitle>
+                                                            <FieldDescription className="text-xs">
+                                                                Basic http server
+                                                            </FieldDescription>
+                                                        </FieldContent>
+                                                        <RadioGroupItem value="kubernetes" id="kubernetes-r2h" />
+                                                    </Field>
+                                                </FieldLabel>
+                                                <FieldLabel htmlFor="vm-z4k">
+                                                    <Field orientation="horizontal">
+                                                        <FieldContent>
+                                                            <FieldTitle className="text-lg">ReactJs</FieldTitle>
+                                                            <FieldDescription className="text-xs">
+                                                                Basic react app
+                                                            </FieldDescription>
+                                                        </FieldContent>
+                                                        <RadioGroupItem value="vm" id="vm-z4k" />
+                                                    </Field>
+                                                </FieldLabel>
+                                            </RadioGroup>
+                                        </FieldSet>
+                                    </FieldGroup>
+                                    <Button onClick={onCreateProject}>Create Project</Button>
+                                </FieldSet>
+                            </DialogDescription>
+                        </DialogContent>
+                    </Dialog>
                     <Button variant="outline">Import Project</Button>
                 </div>
             </EmptyContent>
