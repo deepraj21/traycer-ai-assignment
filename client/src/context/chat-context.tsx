@@ -73,16 +73,16 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
-  const executePlannedTasks = useCallback(async (userText: string) => {
+  const executePlannedTasks = useCallback(async (userText: string, tasksToExecute: PlanTask[]) => {
     const current = loadCurrentProject();
     if (!current) return;
 
     setIsExecuting(true);
     runningRef.current = true;
     try {
-      for (let i = 0; i < plan.length; i++) {
+      for (let i = 0; i < tasksToExecute.length; i++) {
         if (!runningRef.current) break;
-        const t = plan[i];
+        const t = tasksToExecute[i];
         setPlan((prev) => prev.map((p) => (p.id === t.id ? { ...p, status: "running" } : p)));
 
         const res = await executeTask({ task: t.title, query: userText, history: historyForApi });
@@ -93,6 +93,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         );
 
         if (Object.keys(filesMap).length > 0) {
+          console.log('Broadcasting files:', filesMap);
           broadcastFiles(current.id, { ...current.files, ...filesMap });
         }
 
@@ -104,7 +105,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setIsExecuting(false);
       runningRef.current = false;
     }
-  }, [broadcastFiles, historyForApi, plan]);
+  }, [broadcastFiles, historyForApi]);
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
@@ -133,7 +134,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           },
         ]);
 
-        await executePlannedTasks(text);
+        await executePlannedTasks(text, tasks);
       } else {
         // General response flow
         const res = await respondQuery({ query: text, history: historyForApi });
@@ -145,7 +146,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsPlanning(false);
     }
-  }, [broadcastFiles, executePlannedTasks, historyForApi]);
+  }, [executePlannedTasks, historyForApi]);
 
   const resetPlan = useCallback(() => setPlan([]), []);
 

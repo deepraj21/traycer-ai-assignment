@@ -175,6 +175,7 @@ interface ProjectProps {
     onSave: () => void;
     onNewProject: () => void;
     hasUnsavedChanges: boolean;
+    currentFiles: Record<string, string>;
 }
 
 function FileChangeTracker({ onFilesChange }: { onFilesChange: (files: Record<string, string>) => void }) {
@@ -182,10 +183,15 @@ function FileChangeTracker({ onFilesChange }: { onFilesChange: (files: Record<st
     return null;
 }
 
-function Project({ projectData, onSave, onNewProject, hasUnsavedChanges }: ProjectProps) {
+function Project({ projectData, onSave, onNewProject, hasUnsavedChanges, currentFiles }: ProjectProps) {
     const { user, signout } = useAuth()
     const [activeTab, setActiveTab] = useState("code")
     const [files, setFiles] = useState(projectData.files || {})
+
+    // Update files when currentFiles changes (from broadcasted updates)
+    useEffect(() => {
+        setFiles(currentFiles)
+    }, [currentFiles])
 
     const handleFilesChange = (newFiles: Record<string, string>) => {
         setFiles(newFiles)
@@ -316,9 +322,14 @@ export function Preview() {
 
     useEffect(() => {
         const handleFileChange = (event: CustomEvent) => {
+            console.log('File change event received:', event.detail)
             if (projectData && event.detail.projectId === projectData.id) {
+                console.log('Updating files:', event.detail.files)
                 setCurrentFiles(event.detail.files)
                 setHasUnsavedChanges(true)
+                // Update the project data with new files
+                const updatedProject = updateProjectFiles(projectData, event.detail.files)
+                setProjectData(updatedProject)
             }
         }
 
@@ -392,6 +403,7 @@ export function Preview() {
                     onSave={handleSave}
                     onNewProject={handleNewProject}
                     hasUnsavedChanges={hasUnsavedChanges}
+                    currentFiles={currentFiles}
                 />
             ) : (
                 <div className="h-full flex items-center justify-center">

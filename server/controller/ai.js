@@ -51,9 +51,7 @@ export const plan = async (req, res) => {
         const text = response.text();
 
         let tasks;
-        // Attempt direct JSON parse first
         try { tasks = JSON.parse(text); } catch { tasks = null; }
-        // If not a valid array, try to extract an array from fenced/prosey output
         if (!Array.isArray(tasks)) {
             const unfenced = text
                 .replace(/```json[\s\S]*?\n/g, '')
@@ -64,7 +62,6 @@ export const plan = async (req, res) => {
                 try { tasks = JSON.parse(arrayMatch[0]); } catch { tasks = null; }
             }
         }
-        // Final fallback: coerce lines into { task } objects while stripping bullets and fence remnants
         if (!Array.isArray(tasks)) {
             const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
             tasks = lines
@@ -109,10 +106,30 @@ export const execute = async (req, res) => {
         if (!parsed || typeof parsed !== 'object') {
             return res.status(200).json({ explanation: 'Model did not return JSON. Raw output returned.', files: {}, raw: text });
         }
-        if (!parsed.files || typeof parsed.files !== 'object') {
-            parsed.files = {};
+        
+        let files = {};
+        if (parsed.commands && Array.isArray(parsed.commands)) {
+            parsed.commands.forEach(cmd => {
+                if (cmd.file_path && cmd.content) {
+                    files[cmd.file_path] = { code: cmd.content };
+                }
+            });
+        } else if (parsed.files && typeof parsed.files === 'object') {
+            files = {};
+            Object.entries(parsed.files).forEach(([path, content]) => {
+                if (typeof content === 'string') {
+                    files[path] = { code: content };
+                } else if (typeof content === 'object' && content.code) {
+                    files[path] = content;
+                }
+            });
         }
-        return res.json(parsed);
+        
+        return res.json({
+            explanation: parsed.explanation || 'Task executed successfully',
+            files: files,
+            raw: parsed.raw || text
+        });
     } catch (err) {
         return res.status(500).json({ error: err.message || 'execute failed' });
     }

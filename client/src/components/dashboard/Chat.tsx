@@ -48,6 +48,7 @@ import { Message, MessageContent } from "@/components/ai-elements/message"
 import { PlanLive } from "@/components/ai-elements/plan-live"
 import { useChat } from "@/context/chat-context"
 import { Response } from "../ai-elements/response"
+import { Loader } from "../ai-elements/loader"
 
 const MODEL_DATA = {
   models: [
@@ -71,18 +72,27 @@ export function Chat() {
   >(MODEL_DATA.models[0])
   const [scopeMenuOpen, setScopeMenuOpen] = useState(false)
 
-  const { messages, plan, sendMessage } = useChat()
+  const { messages, plan, sendMessage, isPlanning, isExecuting } = useChat()
   const [input, setInput] = useState("")
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
+  
+  const isLoading = isPlanning || isExecuting
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const text = input.trim()
-    if (!text) return
+    if (!text || isLoading) return
 
-    await sendMessage(text)
     setInput("")
+    await sendMessage(text)
     requestAnimationFrame(() => inputRef.current?.focus())
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e as any)
+    }
   }
 
   return (
@@ -124,6 +134,8 @@ export function Chat() {
               placeholder="Plan, search, build anything..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
               ref={inputRef}
             />
             <InputGroupAddon align="block-end" className="gap-1">
@@ -279,8 +291,9 @@ export function Chat() {
                 variant="default"
                 size="icon-sm"
                 type="submit"
+                disabled={isLoading}
               >
-                <ArrowUp />
+                {isLoading ? <Loader size={16} /> : <ArrowUp />}
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
