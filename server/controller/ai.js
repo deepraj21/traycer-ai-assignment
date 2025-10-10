@@ -17,6 +17,25 @@ export const classify = async (req, res) => {
     }
 }
 
+export const respond = async (req, res) => {
+    try {
+        const { query, history = [] } = req.body || {};
+        if (!query || typeof query !== 'string') {
+            return res.status(400).json({ error: 'query is required' });
+        }
+
+        const chat = startChat({
+            history: Array.isArray(history) ? history : [],
+        });
+        const result = await chat.sendMessage(query);
+        const response = await result.response;
+        const text = response.text();
+        return res.json({ text });
+    } catch (err) {
+        return res.status(500).json({ error: err.message || 'respond failed' });
+    }
+}
+
 export const plan = async (req, res) => {
     try {
         const { query, code, history = [] } = req.body || {};

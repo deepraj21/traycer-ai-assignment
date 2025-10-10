@@ -353,6 +353,10 @@ export function Preview() {
         setCurrentFiles(initialFiles)
         setProjectCreated(true)
         setHasUnsavedChanges(false)
+
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('project-created', { detail: { projectId: newProject.id } }))
+        }
     }
 
     const handleSave = () => {
@@ -373,6 +377,10 @@ export function Preview() {
         setCurrentFiles({})
         setProjectCreated(false)
         setHasUnsavedChanges(false)
+
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('project-cleared'))
+        }
     }
 
 

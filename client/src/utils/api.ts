@@ -32,6 +32,11 @@ export async function classifyQuery(query: string): Promise<{ type: 'general' | 
   return res.data as { type: 'general' | 'plan' };
 }
 
+export async function respondQuery(params: { query: string; history?: ChatHistoryMessage[] }): Promise<{ text: string }>{
+  const res = await api.post('/api/ai/respond', params);
+  return res.data as { text: string };
+}
+
 export async function planTasks(params: { query: string; code?: Record<string, string>; history?: ChatHistoryMessage[] }): Promise<{ tasks: { task: string }[] }>{
   const res = await api.post('/api/ai/plan-tasks', params);
   return res.data as { tasks: { task: string }[] };

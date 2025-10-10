@@ -29,7 +29,7 @@ export function useSandpackFiles({ onFilesChange }: UseSandpackFilesProps = {}) 
         filesRef.current = files
         onFilesChange?.(files)
       }
-    }, 500) // Check every 500ms
+    }, 1000)
 
     return () => {
       clearInterval(interval)

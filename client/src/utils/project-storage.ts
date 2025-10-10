@@ -1,5 +1,3 @@
-// Project storage utilities for localStorage management
-
 export interface ProjectData {
     id: string;
     name: string;
@@ -21,7 +19,6 @@ export interface SavedProject {
 const STORAGE_KEY = 'traycer-projects';
 const CURRENT_PROJECT_KEY = 'traycer-current-project';
 
-// Save a project to localStorage
 export const saveProject = (project: ProjectData): void => {
     try {
         const savedProject: SavedProject = {
@@ -37,7 +34,6 @@ export const saveProject = (project: ProjectData): void => {
     }
 };
 
-// Load a project from localStorage
 export const loadProject = (projectId: string): ProjectData | null => {
     try {
         const savedProject = localStorage.getItem(`${STORAGE_KEY}-${projectId}`);
@@ -55,7 +51,6 @@ export const loadProject = (projectId: string): ProjectData | null => {
     }
 };
 
-// Load the current project from localStorage
 export const loadCurrentProject = (): ProjectData | null => {
     try {
         const currentProjectId = localStorage.getItem(CURRENT_PROJECT_KEY);
@@ -68,7 +63,6 @@ export const loadCurrentProject = (): ProjectData | null => {
     }
 };
 
-// Delete a project from localStorage
 export const deleteProject = (projectId: string): void => {
     try {
         localStorage.removeItem(`${STORAGE_KEY}-${projectId}`);
@@ -81,10 +75,8 @@ export const deleteProject = (projectId: string): void => {
     }
 };
 
-// Clear all projects from localStorage
 export const clearAllProjects = (): void => {
     try {
-        // Get all localStorage keys and remove project-related ones
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
             if (key.startsWith(STORAGE_KEY) || key === CURRENT_PROJECT_KEY) {
@@ -96,7 +88,6 @@ export const clearAllProjects = (): void => {
     }
 };
 
-// Get all saved project IDs
 export const getAllProjectIds = (): string[] => {
     try {
         const keys = Object.keys(localStorage);
@@ -109,7 +100,6 @@ export const getAllProjectIds = (): string[] => {
     }
 };
 
-// Update project files
 export const updateProjectFiles = (project: ProjectData, files: Record<string, string>): ProjectData => {
     return {
         ...project,
@@ -118,7 +108,6 @@ export const updateProjectFiles = (project: ProjectData, files: Record<string, s
     };
 };
 
-// Create initial project files based on tech stack
 export const createInitialFiles = (techStack: string): Record<string, string> => {
     if (techStack === 'node') {
         return {

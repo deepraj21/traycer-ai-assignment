@@ -194,7 +194,9 @@ export function Chat() {
   return (
     <div>
       <div className="h-[calc(100vh-217px)]">
-        Chat section
+        <div className="no-chat h-full flex items-center justify-center text-6xl text-muted-foreground select-none">
+          traycer
+        </div>
       </div>
       <form className="rounded-md">
         <Field>
