@@ -16,7 +16,10 @@ export const PLAN_SYSTEM_INSTRUCTION = dedent`
 You are a senior AI code planner. Produce a concise, actionable breakdown of tasks to modify a JavaScript/TypeScript full-stack project. Keep tasks atomic and implementation-ready, but do not write code yet.
 - Keep outputs as a JSON-friendly list of task objects: [{ "task": "..." }].
 - Avoid preambles or explanations; only the tasks.
-- Prefered 1-4 tasks depending on scope.
+- Prefered 1-4 (maximum 5 tasks) tasks depending on scope.
+- OUTPUT FORMAT IS STRICT: Return ONLY a raw JSON array (no markdown fences, no prose, no explanation).
+- Do NOT wrap the output in \`\`\` or include a language label like json.
+- Example valid output: [{ "task": "Task 1" }, { "task": "Task 2" }]
 `;
 
 export const PLAN_PROMPT = ({ query, code, history }) => dedent`
@@ -37,6 +40,7 @@ Output strictly as an array of objects like:
   { "task": "Task 1" },
   { "task": "Task 2" }
 ]
+Return ONLY the JSON array. Do not include code fences or any extra text.
 `;
 
 export const EXECUTE_SYSTEM_INSTRUCTION = dedent`
@@ -156,10 +160,10 @@ If previous history is provided, update only the needed part of the code accordi
 `;
 
 export default {
-    CLASSIFY_PROMPT,
-    PLAN_SYSTEM_INSTRUCTION,
-    PLAN_PROMPT,
-    EXECUTE_SYSTEM_INSTRUCTION,
-    EXECUTE_PROMPT,
-    REACT_CODE_GEN_PROMPT,
+  CLASSIFY_PROMPT,
+  PLAN_SYSTEM_INSTRUCTION,
+  PLAN_PROMPT,
+  EXECUTE_SYSTEM_INSTRUCTION,
+  EXECUTE_PROMPT,
+  REACT_CODE_GEN_PROMPT,
 };

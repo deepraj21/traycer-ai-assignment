@@ -51,10 +51,33 @@ export const plan = async (req, res) => {
         const text = response.text();
 
         let tasks;
+        // Attempt direct JSON parse first
         try { tasks = JSON.parse(text); } catch { tasks = null; }
+        // If not a valid array, try to extract an array from fenced/prosey output
+        if (!Array.isArray(tasks)) {
+            const unfenced = text
+                .replace(/```json[\s\S]*?\n/g, '')
+                .replace(/```/g, '')
+                .trim();
+            const arrayMatch = unfenced.match(/\[[\s\S]*\]/);
+            if (arrayMatch) {
+                try { tasks = JSON.parse(arrayMatch[0]); } catch { tasks = null; }
+            }
+        }
+        // Final fallback: coerce lines into { task } objects while stripping bullets and fence remnants
         if (!Array.isArray(tasks)) {
             const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-            tasks = lines.map((t, i) => ({ task: t.replace(/^[-*\d.\s]+/, '') || `Task ${i + 1}` }));
+            tasks = lines
+                .filter((line) => line && !/^```/.test(line))
+                .map((t, i) => {
+                    const cleaned = t
+                        .replace(/^[-*\d\.\s]+/, '')
+                        .replace(/^\{\s*"task"\s*:\s*"(.+?)"\s*\},?$/, '$1')
+                        .replace(/^\[|\]$/, '')
+                        .trim();
+                    return { task: cleaned || `Task ${i + 1}` };
+                })
+                .filter((obj) => obj.task && obj.task !== '');
         }
         return res.json({ tasks });
     } catch (err) {
