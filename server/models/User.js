@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, index: true },
     passwordHash: { type: String, required: true },
+    modelPreference: { type: String, enum: ['gemini', 'groq'], default: 'gemini' },
   },
   { timestamps: true }
 );

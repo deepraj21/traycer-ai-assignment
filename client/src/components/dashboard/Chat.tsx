@@ -204,7 +204,7 @@ export function Chat() {
           <InputGroup>
             <InputGroupTextarea
               id="notion-prompt"
-              placeholder="Ask, search, or make anything..."
+              placeholder="Plan, search, build anything..."
             />
             <InputGroupAddon align="block-start">
               <Popover
