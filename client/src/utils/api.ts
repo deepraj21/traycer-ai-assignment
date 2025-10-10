@@ -24,3 +24,21 @@ export async function signinRequest(email: string, password: string): Promise<Au
   return res.data.user as AuthUser;
 }
 
+export type ChatHistoryPart = { text: string };
+export type ChatHistoryMessage = { role: 'user' | 'model'; parts: ChatHistoryPart[] };
+
+export async function classifyQuery(query: string): Promise<{ type: 'general' | 'plan' }> {
+  const res = await api.post('/api/ai/classify-query', { query });
+  return res.data as { type: 'general' | 'plan' };
+}
+
+export async function planTasks(params: { query: string; code?: Record<string, string>; history?: ChatHistoryMessage[] }): Promise<{ tasks: { task: string }[] }>{
+  const res = await api.post('/api/ai/plan-tasks', params);
+  return res.data as { tasks: { task: string }[] };
+}
+
+export async function executeTask(params: { task: string; query?: string; code?: Record<string, string>; history?: ChatHistoryMessage[] }): Promise<{ explanation: string; files: Record<string, { code: string }>; raw?: string }>{
+  const res = await api.post('/api/ai/execute-tasks', params);
+  return res.data as { explanation: string; files: Record<string, { code: string }>; raw?: string };
+}
+
