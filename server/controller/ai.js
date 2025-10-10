@@ -1,5 +1,5 @@
 import { startChat, generateText } from '../services/gemini.js';
-import { CLASSIFY_PROMPT, PLAN_SYSTEM_INSTRUCTION, PLAN_PROMPT, EXECUTE_SYSTEM_INSTRUCTION, EXECUTE_PROMPT } from '../utils/prompt.js';
+import { CLASSIFY_PROMPT, PLAN_SYSTEM_INSTRUCTION, PLAN_PROMPT, REACT_CODE_GEN_PROMPT, EXECUTE_PROMPT } from '../utils/prompt.js';
 
 export const classify = async (req, res) => {
     try {
@@ -68,7 +68,7 @@ export const execute = async (req, res) => {
         if (!task) return res.status(400).json({ error: 'task is required' });
 
         const chat = startChat({
-            systemInstruction: EXECUTE_SYSTEM_INSTRUCTION,
+            systemInstruction: REACT_CODE_GEN_PROMPT,
             history: Array.isArray(history) ? history : [],
         });
         const prompt = EXECUTE_PROMPT({ task, query, code, history });

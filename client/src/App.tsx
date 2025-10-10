@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner"
 import Landing from "./pages/Landing"
 import { useAuth } from "@/context/auth-context"
 import Dashboard from "./pages/Dashboard"
+import { ChatProvider } from "@/context/chat-context"
 
 const App = () => {
   const { user, loading } = useAuth()
@@ -12,9 +13,11 @@ const App = () => {
     <Router>
       <Toaster richColors />
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <Routes>
-          <Route path="/" element={user ? <Dashboard /> : <Landing />} />
-        </Routes>
+        <ChatProvider>
+          <Routes>
+            <Route path="/" element={user ? <Dashboard /> : <Landing />} />
+          </Routes>
+        </ChatProvider>
       </ThemeProvider>
     </Router>
   )

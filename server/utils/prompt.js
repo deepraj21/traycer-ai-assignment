@@ -16,7 +16,7 @@ export const PLAN_SYSTEM_INSTRUCTION = dedent`
 You are a senior AI code planner. Produce a concise, actionable breakdown of tasks to modify a JavaScript/TypeScript full-stack project. Keep tasks atomic and implementation-ready, but do not write code yet.
 - Keep outputs as a JSON-friendly list of task objects: [{ "task": "..." }].
 - Avoid preambles or explanations; only the tasks.
-- Prefer 3-8 tasks depending on scope.
+- Prefered 1-4 tasks depending on scope.
 `;
 
 export const PLAN_PROMPT = ({ query, code, history }) => dedent`
